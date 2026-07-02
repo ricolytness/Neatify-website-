@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neatify — Laundry Pickup &amp; Delivery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --chalk:#EFEFEA;
+    --ink:#1F2A24;
+    --pine:#3B6E64;
+    --pine-dark:#2B5049;
+    --blue:#2C6E9E;
+    --sage:#D6E4EE;
+    --white:#FFFFFF;
+    --line:rgba(31,42,36,0.18);
+    --radius:2px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--chalk);
+    color:var(--ink);
+    font-family:'Work Sans', sans-serif;
+    font-size:16px;
+    line-height:1.55;
+  }
+  h1,h2,h3{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--pine-dark);
+  }
+  a{color:inherit;}
+  img,svg{display:block;max-width:100%;}
+  button{font-family:inherit;cursor:pointer;}
+  :focus-visible{outline:2px solid var(--pine); outline-offset:2px;}
+
+  .wrap{max-width:1120px; margin:0 auto; padding:0 24px;}
+
+  /* NAV */
+  header.site{
+    position:sticky; top:0; z-index:50;
+    background:rgba(239,239,234,0.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav{display:flex; align-items:center; justify-content:space-between; padding:16px 24px;}
+  .brand{display:flex; align-items:center; gap:10px; font-family:'Fraunces',serif; font-weight:700; font-size:20px;}
+  .brand-mark{width:28px;height:28px;flex:none;}
+  .nav-links{display:flex; align-items:center; gap:28px; font-size:14px; font-weight:500;}
+  .nav-links a{text-decoration:none; opacity:0.8; transition:opacity .15s;}
+  .nav-links a:hover{opacity:1;}
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:12px 22px;
+    border-radius:var(--radius);
+    font-weight:600; font-size:14px;
+    border:1px solid transparent;
+    text-decoration:none;
+    transition:transform .15s ease, background .15s ease, box-shadow .15s ease;
+  }
+  .btn-primary{background:var(--pine); color:var(--white);}
+  .btn-primary:hover{background:var(--pine-dark); transform:translateY(-1px);}
+  .btn-ghost{background:transparent; border-color:var(--ink);}
+  .btn-ghost:hover{background:var(--ink); color:var(--chalk);}
+  .nav .btn{padding:10px 18px;}
+  .nav-toggle{display:none; background:none; border:none;}
+
+  /* HERO */
+  .hero{padding:88px 0 64px; position:relative;}
+  .hero-grid{display:grid; grid-template-columns:1.1fr 0.9fr; gap:56px; align-items:center;}
+  .hero h1{font-size:clamp(38px, 5.4vw, 62px); line-height:1.04;}
+  .hero h1 em{font-style:normal; color:var(--pine);}
+  .hero p.lede{font-size:18px; max-width:46ch; margin-top:20px; color:#3a453e;}
+  .hero-actions{display:flex; gap:14px; margin-top:32px; flex-wrap:wrap;}
+  .badge{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:0.08em; text-transform:uppercase;
+    background:var(--white); border:1px dashed var(--pine); padding:8px 14px; border-radius:20px;
+    margin-bottom:22px;
+  }
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--blue);}
+
+  /* TICKET visual */
+  .ticket{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:26px;
+    position:relative;
+    box-shadow:0 24px 48px -24px rgba(31,42,36,0.28);
+  }
+  .ticket::before, .ticket::after{
+    content:"";
+    position:absolute; width:24px; height:24px; background:var(--chalk);
+    border-radius:50%; top:50%; transform:translateY(-50%);
+  }
+  .ticket::before{left:-12px;}
+  .ticket::after{right:-12px;}
+  .ticket-row{display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px dashed var(--line); font-size:14px;}
+  .ticket-row:last-child{border-bottom:none;}
+  .ticket-row span:first-child{color:#6b756f;}
+  .ticket-row span:last-child{font-weight:600;}
+  .ticket-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;}
+  .ticket-head .eyebrow{color:var(--pine-dark);}
+  .stamp{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.08em;
+    border:1.5px solid var(--blue); color:#1d4d70; padding:4px 10px; border-radius:3px; transform:rotate(-4deg);
+  }
+
+  /* SECTIONS */
+  section{padding:72px 0;}
+  .section-head{max-width:600px; margin-bottom:44px;}
+  .section-head h2{font-size:clamp(28px,3.4vw,38px); margin-top:10px;}
+
+  /* HOW IT WORKS - clothesline */
+  .line-wrap{position:relative; padding-top:20px;}
+  .clothesline{
+    position:absolute; top:0; left:0; right:0; height:2px; background:var(--line);
+    display:none;
+  }
+  .steps{display:grid; grid-template-columns:repeat(3,1fr); gap:28px;}
+  .step{
+    background:var(--white); border:1px solid var(--line); border-radius:4px; padding:28px 24px;
+    position:relative;
+  }
+  .step .pin{
+    width:14px; height:14px; border-radius:50%; background:var(--blue);
+    position:absolute; top:-8px; left:24px; box-shadow:0 2px 4px rgba(0,0,0,0.15);
+  }
+  .step .step-num{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--pine-dark); margin-bottom:10px; display:block;}
+  .step h3{font-size:20px; margin-bottom:8px;}
+  .step p{margin:0; color:#4a544e; font-size:14.5px;}
+
+  /* PRICING */
+  .price-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:20px;}
+  .price-tag{
+    background:var(--white); border:1px solid var(--line); border-radius:4px; padding:30px 26px;
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .price-tag.featured{border-color:var(--pine); box-shadow:0 20px 40px -28px rgba(59,110,100,0.5);}
+  .price-tag h3{font-size:18px;}
+  .price-amt{font-family:'Fraunces',serif; font-size:36px; font-weight:600; color:var(--pine-dark);}
+  .price-amt sup{font-family:'Work Sans',sans-serif; font-size:14px; font-weight:500; color:#6b756f;}
+  .price-tag ul{list-style:none; padding:0; margin:0; font-size:14px; color:#3a453e; display:flex; flex-direction:column; gap:8px;}
+  .price-tag li::before{content:"— "; color:var(--pine);}
+
+  /* AREAS */
+  .areas-card{
+    background:var(--white); border:1px solid var(--line); border-radius:4px; padding:32px;
+    display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:center;
+  }
+  .zip-list{display:flex; flex-wrap:wrap; gap:10px;}
+  .zip{
+    font-family:'IBM Plex Mono',monospace; font-size:13px; border:1px solid var(--line);
+    padding:6px 12px; border-radius:20px; background:var(--chalk);
+  }
+
+  /* BOOKING FORM */
+  .book{background:var(--pine-dark); color:var(--chalk);}
+  .book .section-head p{color:#cfe0da;}
+  .book .eyebrow{color:var(--blue);}
+  .form-card{
+    background:var(--white); color:var(--ink); border-radius:6px; padding:36px;
+    max-width:760px; margin:0 auto;
+    box-shadow:0 30px 60px -30px rgba(0,0,0,0.5);
+  }
+  .form-grid{display:grid; grid-template-columns:1fr 1fr; gap:18px 20px;}
+  .field{display:flex; flex-direction:column; gap:6px;}
+  .field.full{grid-column:1/-1;}
+  label{font-size:13px; font-weight:600;}
+  input, select, textarea{
+    font-family:'Work Sans',sans-serif; font-size:15px;
+    padding:11px 12px; border:1px solid var(--line); border-radius:3px; background:var(--chalk);
+    color:var(--ink);
+  }
+  textarea{resize:vertical; min-height:70px;}
+  .form-foot{display:flex; align-items:center; justify-content:space-between; margin-top:24px; gap:16px; flex-wrap:wrap;}
+  .form-note{font-size:12.5px; color:#6b756f; max-width:40ch;}
+  .form-status{font-size:14px; font-weight:600; display:none;}
+  .form-status.show{display:block;}
+
+  /* FOOTER */
+  footer{padding:44px 0; border-top:1px solid var(--line);}
+  .foot-grid{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;}
+  .foot-links{display:flex; gap:22px; font-size:14px;}
+  .foot-links a{text-decoration:none; opacity:0.75;}
+  .foot-links a:hover{opacity:1;}
+  .fine{font-size:12.5px; color:#6b756f; margin-top:18px;}
+
+  @media (max-width: 1000px) and (min-width: 861px){
+    .price-grid{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (max-width: 860px){
+    .hero-grid{grid-template-columns:1fr;}
+    .nav-links{display:none;}
+    .nav-toggle{display:block;}
+    .steps{grid-template-columns:1fr;}
+    .price-grid{grid-template-columns:1fr;}
+    .areas-card{grid-template-columns:1fr;}
+    .form-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="nav wrap">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="13" stroke="#1F2A24" stroke-width="1.5"/><path d="M8 14a6 6 0 0 0 12 0" stroke="#3B6E64" stroke-width="1.5" stroke-linecap="round"/><circle cx="14" cy="9" r="1.6" fill="#E8A33D"/></svg>
+      Neatify
+    </div>
+    <nav class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#areas">Areas</a>
+      <a href="#book" class="btn btn-primary">Book a pickup</a>
+    </nav>
+    <button class="nav-toggle" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="badge"><span class="dot"></span> Now booking — see areas below</span>
+      <h1>Drop the laundry list.<br><em>We'll fetch it.</em></h1>
+      <p class="lede">Schedule a pickup in two minutes. We wash, dry, and fold — then bring it back to your door within 48 hours.</p>
+      <div class="hero-actions">
+        <a href="#book" class="btn btn-primary">Book a pickup</a>
+        <a href="#how" class="btn btn-ghost">See how it works</a>
+      </div>
+    </div>
+    <div class="ticket">
+      <div class="ticket-head">
+        <span class="eyebrow">Claim ticket</span>
+        <span class="stamp">In progress</span>
+      </div>
+      <div class="ticket-row"><span>Pickup</span><span>Today, 6:00–8:00 PM</span></div>
+      <div class="ticket-row"><span>Bags</span><span>2 standard</span></div>
+      <div class="ticket-row"><span>Service</span><span>Wash · Dry · Fold</span></div>
+      <div class="ticket-row"><span>Return</span><span>In 48 hours</span></div>
+      <div class="ticket-row"><span>Total</span><span>₦7,000</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">The process</span>
+      <h2>Three steps, no folding required on your end</h2>
+    </div>
+    <div class="line-wrap">
+      <div class="steps">
+        <div class="step">
+          <span class="pin"></span>
+          <span class="step-num">01 · Schedule</span>
+          <h3>Pick a window</h3>
+          <p>Choose a pickup date and a two-hour window that works for you. Leave your baskets by the door — no need to be home.</p>
+        </div>
+        <div class="step">
+          <span class="pin"></span>
+          <span class="step-num">02 · Pickup</span>
+          <h3>We collect it</h3>
+          <p>A driver picks up your baskets and tags them with your claim number so nothing gets mixed up along the way.</p>
+        </div>
+        <div class="step">
+          <span class="pin"></span>
+          <span class="step-num">03 · Delivery</span>
+          <h3>Clean and folded</h3>
+          <p>Within 48 hours, your laundry comes back washed, dried, and folded — ready to put away.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing" style="background:var(--sage);">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Pricing</span>
+      <h2>Pay by the basket, cancel anytime</h2>
+    </div>
+    <div class="price-grid">
+      <div class="price-tag">
+        <h3>Small load</h3>
+        <div class="price-amt">₦3,500<sup>/ order</sup></div>
+        <ul>
+          <li>For a few items — under half a basket</li>
+          <li>One-time order, no commitment</li>
+          <li>Wash, dry, fold</li>
+          <li>48-hour turnaround</li>
+        </ul>
+        <a href="#book" class="btn btn-ghost">Book a pickup</a>
+      </div>
+      <div class="price-tag">
+        <h3>Per basket</h3>
+        <div class="price-amt">₦7,000<sup>/ basket</sup></div>
+        <ul>
+          <li>Fits one standard hamper</li>
+          <li>Wash, dry, fold</li>
+          <li>48-hour turnaround</li>
+        </ul>
+        <a href="#book" class="btn btn-ghost">Book a pickup</a>
+      </div>
+      <div class="price-tag featured">
+        <h3>Weekly plan</h3>
+        <div class="price-amt">₦6,000<sup>/ basket</sup></div>
+        <ul>
+          <li>Everything in Per Basket</li>
+          <li>Recurring weekly pickup</li>
+          <li>Priority 24-hour turnaround</li>
+        </ul>
+        <a href="#book" class="btn btn-primary">Start weekly plan</a>
+      </div>
+      <div class="price-tag">
+        <h3>Rush service</h3>
+        <div class="price-amt">+₦1,500<sup>/ order</sup></div>
+        <ul>
+          <li>Same-day pickup where available</li>
+          <li>Delivered next morning</li>
+          <li>Add to any order</li>
+        </ul>
+        <a href="#book" class="btn btn-ghost">Book a pickup</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="areas">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Service area</span>
+      <h2>Currently serving Bmuko and Dutse</h2>
+    </div>
+    <div class="areas-card">
+      <div>
+        <p style="margin:0 0 14px; font-size:14.5px; color:#4a544e;">Pickup and delivery run daily, 8 AM–8 PM. Outside these zones? Join the waitlist and we'll notify you when we expand.</p>
+        <a href="#book" class="btn btn-primary">Check my address</a>
+      </div>
+      <div class="zip-list">
+        <span class="zip">Bmuko</span>
+        <span class="zip">Dutse Central</span>
+        <span class="zip">Dutse — more areas soon</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="book" class="book">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Book a pickup</span>
+      <h2>Fill out your claim ticket</h2>
+      <p>Takes about two minutes. We'll confirm your pickup window by text or email.</p>
+    </div>
+
+    <form class="form-card" id="bookingForm" action="https://formspree.io/f/mjgqpevj" method="POST">
+      <div class="form-grid">
+        <div class="field">
+          <label for="name">Full name</label>
+          <input type="text" id="name" name="name" required>
+        </div>
+        <div class="field">
+          <label for="phone">Phone number</label>
+          <input type="tel" id="phone" name="phone" required>
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        <div class="field">
+          <label for="address">Pickup address</label>
+          <input type="text" id="address" name="address" required>
+        </div>
+        <div class="field">
+          <label for="date">Pickup date</label>
+          <input type="date" id="date" name="date" required>
+        </div>
+        <div class="field">
+          <label for="window">Preferred window</label>
+          <select id="window" name="window" required>
+            <option value="">Select a window</option>
+            <option>8 AM – 10 AM</option>
+            <option>10 AM – 12 PM</option>
+            <option>2 PM – 4 PM</option>
+            <option>6 PM – 8 PM</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="bags">Load size</label>
+          <select id="bags" name="bags" required>
+            <option value="">Select</option>
+            <option>Small load (few items)</option>
+            <option>1 basket</option>
+            <option>2 baskets</option>
+            <option>3 baskets</option>
+            <option>4+ baskets</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="plan">Service</label>
+          <select id="plan" name="plan" required>
+            <option value="">Select</option>
+            <option>Small load</option>
+            <option>Per basket</option>
+            <option>Weekly plan</option>
+            <option>Rush service</option>
+          </select>
+        </div>
+        <div class="field full" style="background:var(--sage); border-radius:4px; padding:16px 18px; gap:10px;">
+          <label style="display:flex; align-items:center; gap:10px; font-size:14.5px; font-weight:600;">
+            <input type="checkbox" id="weeklySignup" name="weekly_signup" value="Yes" style="width:18px; height:18px;">
+            Sign me up for the Weekly Plan (₦6,000/basket, recurring pickup)
+          </label>
+          <div id="weeklyDayField" style="display:none; margin-top:10px;">
+            <label for="weeklyDay">Preferred weekly pickup day</label>
+            <select id="weeklyDay" name="weekly_day">
+              <option value="">Select a day</option>
+              <option>Monday</option>
+              <option>Tuesday</option>
+              <option>Wednesday</option>
+              <option>Thursday</option>
+              <option>Friday</option>
+              <option>Saturday</option>
+            </select>
+          </div>
+        </div>
+        <div class="field full">
+          <label for="notes">Special instructions (optional)</label>
+          <textarea id="notes" name="notes" placeholder="Gate code, delicate items, detergent preference..."></textarea>
+        </div>
+      </div>
+      <div class="form-foot">
+        <p class="form-note">By booking, you'll get a text confirming your pickup window. No payment is required now — you'll pay on delivery.</p>
+        <button type="submit" class="btn btn-primary">Confirm pickup</button>
+      </div>
+      <p class="form-status" id="formStatus"></p>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="brand">Neatify</div>
+      <div class="foot-links">
+        <a href="#how">How it works</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#areas">Areas</a>
+        <a href="mailto:hello@neatify.com">hello@neatify.com</a>
+      </div>
+    </div>
+    <p class="fine">© 2026 Neatify. Pickup and delivery laundry service.</p>
+  </div>
+</footer>
+
+<script>
+  // Prevent booking a date in the past
+  const dateInput = document.getElementById('date');
+  const today = new Date().toISOString().split('T')[0];
+  dateInput.setAttribute('min', today);
+
+  // Show/hide the weekly pickup day field when the Weekly Plan checkbox is toggled
+  const weeklyCheckbox = document.getElementById('weeklySignup');
+  const weeklyDayField = document.getElementById('weeklyDayField');
+  weeklyCheckbox.addEventListener('change', function(){
+    weeklyDayField.style.display = weeklyCheckbox.checked ? 'block' : 'none';
+  });
+
+  // Submits to Formspree via AJAX so the customer stays on this page instead of being redirected.
+  const form = document.getElementById('bookingForm');
+  const status = document.getElementById('formStatus');
+  form.addEventListener('submit', async function(e){
+    e.preventDefault();
+    status.classList.remove('show');
+    const data = new FormData(form);
+    try{
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: data,
+        headers: { 'Accept': 'application/json' }
+      });
+      if(response.ok){
+        status.textContent = 'Thanks — your pickup request is in. We\'ll confirm your window by text or email shortly.';
+        status.style.color = '#2B5049';
+        form.reset();
+      } else {
+        status.textContent = 'Something went wrong sending your request. Please try again or call us directly.';
+        status.style.color = '#a83232';
+      }
+    } catch(err){
+      status.textContent = 'Something went wrong sending your request. Please check your connection and try again.';
+      status.style.color = '#a83232';
+    }
+    status.classList.add('show');
+  });
+</script>
+
+</body>
+</html>
